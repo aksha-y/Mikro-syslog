@@ -29,7 +29,13 @@ backend/.env
 backend/.env.*
 backend/logs/
 backend/prisma/dev.db
+
+# Ignore all migration SQL files (Prisma)
+backend/prisma/migrations/*/migration.sql
 backend/prisma/*.sqlite
 
 # Build artifacts (if any)
 backend/public/assets/
+# Misc
+*.swp
+*.swo
