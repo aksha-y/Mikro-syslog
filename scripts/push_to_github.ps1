@@ -109,6 +109,9 @@ Thumbs.db
   # Attempt push
   Write-Host "Pushing to '$Branch'..."
   git push -u origin $Branch
+  if (-not $?) {
+    throw "Git push failed. Check token permissions or remote access."
+  }
 
   # Reset remote URL if token was injected
   if ($urlResetNeeded) {
