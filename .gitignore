@@ -1,0 +1,35 @@
+# Root ignores
+.DS_Store
+Thumbs.db
+*.log
+logs/
+
+# IDE
+.vscode/
+.history/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Frontend (Vite/React)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+frontend/.vite/
+frontend/coverage/
+
+# Backend (Express/Prisma)
+backend/node_modules/
+backend/.env
+backend/.env.*
+backend/logs/
+backend/prisma/dev.db
+backend/prisma/*.sqlite
+
+# Build artifacts (if any)
+backend/public/assets/

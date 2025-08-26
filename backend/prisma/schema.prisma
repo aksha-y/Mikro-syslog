@@ -1,0 +1,87 @@
+// Prisma schema for Syslog Portal
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Enums replaced for SQLite compatibility
+// Use string fields with constrained values at application layer
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("VIEWER")
+  createdAt DateTime @default(now())
+}
+
+model Device {
+  id        String   @id @default(cuid())
+  ip        String   @unique
+  name      String?
+  source    String? // e.g., "mikrotik", "unifi", etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  logs      Log[]
+}
+
+model Log {
+  id              String    @id @default(cuid())
+  timestamp       DateTime  @default(now())
+  deviceIp        String
+  deviceIdentity  String?
+  severity        String    @default("UNKNOWN")
+  message         String
+  source          String?
+  device          Device?   @relation(fields: [deviceIp], references: [ip])
+
+  @@index([timestamp], map: "idx_log_timestamp")
+  @@index([deviceIp], map: "idx_log_deviceIp")
+  @@index([severity], map: "idx_log_severity")
+  @@index([timestamp, deviceIp], map: "idx_log_time_device")
+  @@index([deviceIdentity])
+}
+
+model AlertRule {
+  id           String    @id @default(cuid())
+  name         String
+  // criteria
+  deviceIp     String?
+  minSeverity  String?
+  keyword      String? // substring match
+  enabled      Boolean   @default(true)
+
+  // actions
+  emailTo      String?
+  smsTo        String?
+
+  createdAt    DateTime  @default(now())
+
+  notifications AlertNotification[]
+}
+
+model AlertNotification {
+  id          String    @id @default(cuid())
+  ruleId      String
+  rule        AlertRule @relation(fields: [ruleId], references: [id])
+  logId       String
+  createdAt   DateTime  @default(now())
+  channel     String // email | sms
+  status      String // sent | failed
+  error       String?
+
+  @@index([createdAt])
+}
+
+// Simple key/value settings store
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
