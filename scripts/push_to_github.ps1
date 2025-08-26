@@ -3,7 +3,8 @@ param(
   [string]$Branch = "main",
   [string]$UserName = "",     # Optional: git user.name
   [string]$Email = "",        # Optional: git user.email
-  [switch]$UseToken            # If set, prompts for a GitHub token to use for push
+  [switch]$UseToken,           # If set, prompts for a GitHub token to use for push
+  [string]$Token               # Optional: provide PAT non-interactively
 )
 
 $ErrorActionPreference = 'Stop'
@@ -91,11 +92,14 @@ Thumbs.db
 
   # Optional: use token for push
   $urlResetNeeded = $false
-  if ($UseToken) {
+  if ($UseToken -or $Token) {
     Write-Host "A GitHub Personal Access Token will be used for this push. It won't be saved."
-    $secToken = Read-Host "Enter GitHub Personal Access Token (repo scope)" -AsSecureString
-    $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secToken)
-    $plainToken = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+    $plainToken = $Token
+    if (-not $plainToken) {
+      $secToken = Read-Host "Enter GitHub Personal Access Token (repo scope)" -AsSecureString
+      $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secToken)
+      $plainToken = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+    }
     $ghUser = if ($UserName) { $UserName } else { Read-Host "Enter GitHub username" }
     $urlWithCreds = $RepoUrl -replace '^https://', ("https://{0}:{1}@" -f $ghUser, $plainToken)
     git remote set-url origin $urlWithCreds | Out-Null
