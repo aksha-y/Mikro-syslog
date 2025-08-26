@@ -100,7 +100,8 @@ Thumbs.db
       $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secToken)
       $plainToken = [Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
     }
-    $ghUser = if ($UserName) { $UserName } else { Read-Host "Enter GitHub username" }
+    # Use GitHub recommended pattern for PATs
+    $ghUser = if ($Token) { "x-access-token" } elseif ($UserName) { $UserName } else { Read-Host "Enter GitHub username" }
     $urlWithCreds = $RepoUrl -replace '^https://', ("https://{0}:{1}@" -f $ghUser, $plainToken)
     git remote set-url origin $urlWithCreds | Out-Null
     $urlResetNeeded = $true
